@@ -178,11 +178,11 @@ Dashboard - Gestión de Finca Ganadera
 
 <label>Hectáreas</label>
 
-<input type="number" id="hectareas">
+<input type="number" id="hectareas" min="0.1" step="any" placeholder="Ej: 10">
 
 <label>Número de animales</label>
 
-<input type="number" id="animales">
+<input type="number" id="animales" min="1" step="any" placeholder="Ej: 15">
 
 <button class="action" onclick="calcularCarga()">
 
@@ -206,7 +206,7 @@ Calcular
 
 <label>Litros</label>
 
-<input type="number" id="litros">
+<input type="number" id="litros" min="0" step="any">
 
 <button class="action" onclick="registrarLeche()">
 
@@ -246,7 +246,7 @@ Registrar
 
 <label>Animal / Lote</label>
 
-<input type="text" id="animal">
+<input type="text" id="animal" placeholder="Ej: Lote 1 o Vaca 05">
 
 <label>Tratamiento</label>
 
@@ -324,48 +324,53 @@ CARGA ANIMAL
 
 function calcularCarga(){
 
-let h=parseFloat(document.getElementById("hectareas").value);
+let hInput = document.getElementById("hectareas").value;
+let aInput = document.getElementById("animales").value;
 
-let a=parseFloat(document.getElementById("animales").value);
+let h = parseFloat(hInput);
+let a = parseFloat(aInput);
 
-if(!h || !a){
+if(isNaN(h) || isNaN(a) || h <= 0 || a < 0){
 
-alert("Complete todos los campos");
+document.getElementById("resultadoCarga").innerHTML = 
+`<div class="resultado rojo">
+Por favor ingresa números válidos mayores a cero.
+</div>`;
 
 return;
 
 }
 
-let carga=a/h;
+let carga = a / h;
 
-let texto="";
-let clase="";
+let texto = "";
+let clase = "";
 
-if(carga<1){
+if(carga < 1){
 
-texto="Subaprovechamiento";
+texto = "Subaprovechamiento";
 
-clase="amarillo";
+clase = "amarillo";
 
 }
 
-else if(carga<=2){
+else if(carga <= 2){
 
-texto="Carga óptima";
+texto = "Carga óptima";
 
-clase="verde";
+clase = "verde";
 
 }
 
 else{
 
-texto="Riesgo de sobrepastoreo";
+texto = "Riesgo de sobrepastoreo";
 
-clase="rojo";
+clase = "rojo";
 
 }
 
-document.getElementById("resultadoCarga").innerHTML=
+document.getElementById("resultadoCarga").innerHTML = 
 
 `<div class="resultado ${clase}">
 UGG/Ha: <b>${carga.toFixed(2)}</b><br>${texto}
@@ -377,17 +382,17 @@ UGG/Ha: <b>${carga.toFixed(2)}</b><br>${texto}
 LECHE
 **********************/
 
-const registros=[];
+const registros = [];
 
 function registrarLeche(){
 
-let fecha=document.getElementById("fechaLeche").value;
+let fecha = document.getElementById("fechaLeche").value;
 
-let litros=parseFloat(document.getElementById("litros").value);
+let litros = parseFloat(document.getElementById("litros").value);
 
-if(!fecha || !litros){
+if(!fecha || isNaN(litros)){
 
-alert("Complete todos los campos");
+alert("Complete todos los campos correctamente");
 
 return;
 
@@ -407,17 +412,17 @@ actualizarTabla();
 
 function actualizarTabla(){
 
-let tbody=document.getElementById("tablaLeche");
+let tbody = document.getElementById("tablaLeche");
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
-let suma=0;
+let suma = 0;
 
 registros.forEach(r=>{
 
-suma+=r.litros;
+suma += r.litros;
 
-tbody.innerHTML+=`
+tbody.innerHTML += `
 
 <tr>
 
@@ -431,21 +436,21 @@ tbody.innerHTML+=`
 
 });
 
-let promedio=suma/registros.length;
+let promedio = suma / registros.length;
 
-let mensaje=`Promedio diario: <b>${promedio.toFixed(2)} litros</b>`;
+let mensaje = `Promedio diario: <b>${promedio.toFixed(2)} litros</b>`;
 
-let ultimo=registros[registros.length-1];
+let ultimo = registros[registros.length - 1];
 
-if(ultimo.litros<promedio*0.85){
+if(ultimo.litros < promedio * 0.85){
 
-mensaje+=`<br><span style="color:red">
+mensaje += `<br><span style="color:red">
 ⚠ La producción cayó más del 15%.
 </span>`;
 
 }
 
-document.getElementById("promedio").innerHTML=mensaje;
+document.getElementById("promedio").innerHTML = mensaje;
 
 }
 
@@ -453,15 +458,15 @@ document.getElementById("promedio").innerHTML=mensaje;
 CALENDARIO SANITARIO
 **********************/
 
-const vacunas=[];
+const vacunas = [];
 
 function agregarVacuna(){
 
-let animal=document.getElementById("animal").value;
+let animal = document.getElementById("animal").value;
 
-let tratamiento=document.getElementById("tratamiento").value;
+let tratamiento = document.getElementById("tratamiento").value;
 
-let fecha=document.getElementById("fechaVacuna").value;
+let fecha = document.getElementById("fechaVacuna").value;
 
 if(!animal || !fecha){
 
@@ -477,19 +482,19 @@ switch(tratamiento){
 
 case "Aftosa":
 
-prox.setMonth(prox.getMonth()+6);
+prox.setMonth(prox.getMonth() + 6);
 
 break;
 
 case "Triple":
 
-prox.setFullYear(prox.getFullYear()+1);
+prox.setFullYear(prox.getFullYear() + 1);
 
 break;
 
 case "Desparasitación":
 
-prox.setMonth(prox.getMonth()+3);
+prox.setMonth(prox.getMonth() + 3);
 
 break;
 
@@ -503,7 +508,7 @@ tratamiento,
 
 fecha,
 
-proxima:prox
+proxima: prox
 
 });
 
@@ -513,41 +518,41 @@ mostrarVacunas();
 
 function mostrarVacunas(){
 
-let tbody=document.getElementById("tablaVacunas");
+let tbody = document.getElementById("tablaVacunas");
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
-let hoy=new Date();
+let hoy = new Date();
 
 vacunas.forEach(v=>{
 
-let dias=Math.ceil((v.proxima-hoy)/(1000*60*60*24));
+let dias = Math.ceil((v.proxima - hoy) / (1000 * 60 * 60 * 24));
 
-let estado="";
+let estado = "";
 
-let clase="";
+let clase = "";
 
-if(dias<0){
+if(dias < 0){
 
-estado="Vencido";
+estado = "Vencido";
 
-clase="rojo";
+clase = "rojo";
 
 }
 
-else if(dias<=15){
+else if(dias <= 15){
 
-estado="Próximo";
+estado = "Próximo";
 
-clase="amarillo";
+clase = "amarillo";
 
 }
 
 else{
 
-estado="Al día";
+estado = "Al día";
 
-clase="verde";
+clase = "verde";
 
 }
 
@@ -555,7 +560,7 @@ let fechaProximaStr = isNaN(v.proxima.getTime())
   ? "Fecha inválida" 
   : v.proxima.toLocaleDateString('es-ES');
 
-tbody.innerHTML+=`
+tbody.innerHTML += `
 
 <tr>
 
